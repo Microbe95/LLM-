@@ -589,7 +589,7 @@ return (
     {/* 상단: 타이틀+탭 */}
     <div className="bg-[#00235B] pb-2">
       <h1 className="text-center text-4xl font-bold text-white py-4">My page</h1>
-      <nav className="flex justify-center bg-[#00235B] border-b border-gray-300">
+      <nav className="flex justify-center">
         {tabs.map((tab) => (
           <button
             key={tab.id}
