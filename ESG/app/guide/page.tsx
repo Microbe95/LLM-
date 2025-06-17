@@ -75,28 +75,7 @@ export default function GuidePage() {
         </div>
       </div>
       
-      {/* 👇 챗봇 열기 floating button (오른쪽 하단 고정) */}
-      {!chatbotOpen && (
-        <button
-          onClick={handleOpenChatbot}
-          className="fixed bottom-8 right-8 z-50 bg-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center hover:bg-gray-100 transition"
-          aria-label="챗봇 열기"
-          style={{ border: "2px solid #2563eb" }} // 필요시 라운드 보더 강조
-        >
-          <Image
-            src="/cbot_logo.png"   // 여기에 원하는 로고 이미지 경로
-            alt="챗봇 열기"
-            width={44}
-            height={44}
-            style={{ objectFit: "contain" }}
-            priority
-          />
-        </button>
-      )}
-      {/* 챗봇 위젯 (open일 때만 노출) */}
-      {chatbotOpen && (
-        <ChatbotWidget onClose={handleCloseChatbot} />
-      )}
+   
     </div>
   );
 }
