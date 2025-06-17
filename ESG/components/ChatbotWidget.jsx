@@ -11,31 +11,48 @@ const FAQS = [
 ];
 
 export default function ChatbotModal({ onClose }) {
-  const [messages, setMessages] = useState([
-    {
-      role: "system",
-      text: "안녕하세요! 저는 CBAM 궁금증을 해결해드리는 카봇이에요.\n'CBAM이 뭐야?'부터 '인증서 가격 어떻게 계산하지?'까지, 편하게 질문해주세요!"
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // 초기 로딩 여부
   const [input, setInput] = useState("");
   const scrollRef = useRef();
 
-  // 스크롤 항상 최신으로 이동
+  // ✅ localStorage에서 대화 기록 불러오기
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const saved = localStorage.getItem("cbam_chat_history");
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved));
+      } catch {
+        localStorage.removeItem("cbam_chat_history");
+        setMessages([defaultWelcomeMessage()]);
+      }
+    } else {
+      setMessages([defaultWelcomeMessage()]);
+    }
+    setIsLoading(false); // 로딩 완료
+  }, []);
+
+  // ✅ 대화 기록 저장
+  useEffect(() => {
+    if (!isLoading) {
+      localStorage.setItem("cbam_chat_history", JSON.stringify(messages));
     }
   }, [messages]);
 
+  // ✅ 기본 인삿말 함수
+  const defaultWelcomeMessage = () => ({
+    role: "system",
+    text: "안녕하세요! 저는 CBAM 궁금증을 해결해드리는 카봇이에요.\n'CBAM이 뭐야?'부터 '인증서 가격 어떻게 계산하지?'까지, 편하게 질문해주세요!"
+  });
+
   // 질문 전송
-  // 질문 전송
-const sendMessage = async (question) => {
-  if (!question.trim()) return;
-  setMessages(prev => [
-    ...prev,
-    { role: "user", text: question, time: now() }
-  ]);
-  setInput("");
+  const sendMessage = async (question) => {
+    if (!question.trim()) return;
+    setMessages(prev => [
+      ...prev,
+      { role: "user", text: question, time: now() }
+    ]);
+    setInput("");
 
   try {
     const res = await fetch("/api/chatbot", {
@@ -68,6 +85,7 @@ const sendMessage = async (question) => {
     sendMessage(input);
   };
 
+  if (isLoading) return null;
   return (
     <div className="fixed z-50 bottom-0 right-0 mb-6 mr-6 md:mb-10 md:mr-10 max-w-lg w-[150vw] sm:w-[700px] bg-white rounded-2xl shadow-2xl flex flex-col">
 
