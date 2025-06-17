@@ -16,6 +16,12 @@ export default function ChatbotModal({ onClose }) {
   const [input, setInput] = useState("");
   const scrollRef = useRef();
 
+
+  useEffect(() => {
+  if (scrollRef.current) {
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }
+}, [messages]);
   // ✅ localStorage에서 대화 기록 불러오기
   useEffect(() => {
     const saved = localStorage.getItem("cbam_chat_history");
