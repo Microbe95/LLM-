@@ -79,8 +79,8 @@ const sendMessage = async (question) => {
             <Image
               src="/cbot_logo.png"
               alt="챗봇 로고"
-              width={44}
-              height={44}
+              width={50}
+              height={50}
               priority
             />
           </div>
