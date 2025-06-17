@@ -69,7 +69,8 @@ const sendMessage = async (question) => {
   };
 
   return (
-    <div className="fixed z-50 bottom-0 right-0 mb-6 mr-6 md:mb-10 md:mr-10 max-w-xs w-[90vw] sm:w-[400px] bg-white rounded-2xl shadow-2xl flex flex-col">
+    <div className="fixed z-50 bottom-0 right-0 mb-6 mr-6 md:mb-10 md:mr-10 max-w-lg w-[150vw] sm:w-[700px] bg-white rounded-2xl shadow-2xl flex flex-col">
+
       {/* 상단 - 로고/타이틀/설명/닫기 */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-2xl">
         <div className="flex items-center space-x-3">
@@ -126,10 +127,10 @@ const sendMessage = async (question) => {
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 rounded-full bg-[#4273C4] flex items-center justify-center mr-2 shadow">
                   <Image
-                    src="/cbot_logo.png"
+                    src="/chatbot1.png"
                     alt="bot"
-                    width={28}
-                    height={28}
+                    width={45}
+                    height={45}
                   />
                 </div>
               </div>
@@ -178,3 +179,4 @@ function now() {
     .toString()
     .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
+
