@@ -77,10 +77,10 @@ const sendMessage = async (question) => {
           {/* 로고만 이미지 */}
           <div className="w-12 h-12 rounded-full bg-[#4273C4] flex items-center justify-center shadow-md">
             <Image
-              src="/cbot_logo.png"
+              src="/LogoC.png"
               alt="챗봇 로고"
-              width={50}
-              height={50}
+              width={60}
+              height={60}
               priority
             />
           </div>
