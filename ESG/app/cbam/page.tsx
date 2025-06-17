@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import ChatbotWidget from "@/components/ChatbotWidget";
+import Image from "next/image";
 
 const tabs = [
   { key: "concept", label: "CBAM 개념" },
@@ -18,6 +20,15 @@ export default function CbamPage() {
     useRef<HTMLElement | null>(null),
     useRef<HTMLElement | null>(null),
   ];
+
+
+  const [chatbotOpen, setChatbotOpen] = useState(false); // 챗봇 열기/닫기 상태
+
+  // 챗봇 열기 핸들러
+  const handleOpenChatbot = () => setChatbotOpen(true);
+
+  // 챗봇 닫기 핸들러 (챗봇 내 X 버튼에서 실행)
+  const handleCloseChatbot = () => setChatbotOpen(false);
 
   const handleTabClick = (idx: number) => {
     setActiveTab(idx);
@@ -218,6 +229,28 @@ export default function CbamPage() {
           <img src="/cbam21.png" alt="CBAM 배출량 산정 시 유의사항" className="w-full max-w-3xl mx-auto mb-4" />
         </section>
       </div>
+       {/* 👇 챗봇 열기 floating button (오른쪽 하단 고정) */}
+      {!chatbotOpen && (
+        <button
+          onClick={handleOpenChatbot}
+          className="fixed bottom-8 right-8 z-50 bg-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center hover:bg-gray-100 transition"
+          aria-label="챗봇 열기"
+          style={{ border: "2px solid #2563eb" }} // 필요시 라운드 보더 강조
+        >
+          <Image
+            src="/cbot_logo.png"   // 여기에 원하는 로고 이미지 경로
+            alt="챗봇 열기"
+            width={44}
+            height={44}
+            style={{ objectFit: "contain" }}
+            priority
+          />
+        </button>
+      )}
+      {/* 챗봇 위젯 (open일 때만 노출) */}
+      {chatbotOpen && (
+        <ChatbotWidget onClose={handleCloseChatbot} />
+      )}
     </div>
   );
 } 
