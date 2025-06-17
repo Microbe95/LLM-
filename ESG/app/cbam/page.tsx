@@ -230,7 +230,6 @@ export default function CbamPage() {
         </section>
     </div>
 
-      {/* 챗봇 열기 floating button (오른쪽 하단 고정) */}
       {!chatbotOpen && (
         <button
           onClick={handleOpenChatbot}
