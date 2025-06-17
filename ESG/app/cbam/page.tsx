@@ -68,13 +68,13 @@ export default function CbamPage() {
             {tabs.map((tab, idx) => (
               <button
                 key={tab.key}
-                className={`px-6 py-3 text-base font-bold border-r border-gray-200 focus:outline-none flex items-center gap-2 ${
+                className={`flex-1 px-4 py-3 text-base font-bold border-r border-gray-200 focus:outline-none flex items-center justify-center gap-2 ${
                   activeTab === idx
                     ? "bg-blue-700 text-white"
                     : "bg-white text-[#00235B] hover:bg-blue-50"
                 }`}
                 onClick={() => handleTabClick(idx)}
-                style={{ minWidth: 180 }}
+               
               >
                 {tab.label}
                 <span className="ml-1 text-xs">▼</span>
