@@ -1,9 +1,9 @@
 "use client"
 
 import { useRef, useState } from "react";
-import Link from "next/link";
-import ChatbotWidget from "@/components/ChatbotWidget";
 import Image from "next/image";
+import ChatbotWidget from "@/components/ChatbotWidget";
+import Link from "next/link";
 
 const tabs = [
   { key: "concept", label: "CBAM 개념" },
@@ -21,14 +21,14 @@ export default function CbamPage() {
     useRef<HTMLElement | null>(null),
   ];
 
-
   const [chatbotOpen, setChatbotOpen] = useState(false); // 챗봇 열기/닫기 상태
 
   // 챗봇 열기 핸들러
   const handleOpenChatbot = () => setChatbotOpen(true);
-
   // 챗봇 닫기 핸들러 (챗봇 내 X 버튼에서 실행)
   const handleCloseChatbot = () => setChatbotOpen(false);
+
+
 
   const handleTabClick = (idx: number) => {
     setActiveTab(idx);
@@ -228,8 +228,9 @@ export default function CbamPage() {
           </p>
           <img src="/cbam21.png" alt="CBAM 배출량 산정 시 유의사항" className="w-full max-w-3xl mx-auto mb-4" />
         </section>
-      </div>
-       {/* 👇 챗봇 열기 floating button (오른쪽 하단 고정) */}
+    </div>
+
+      {/* 챗봇 열기 floating button (오른쪽 하단 고정) */}
       {!chatbotOpen && (
         <button
           onClick={handleOpenChatbot}
@@ -251,6 +252,6 @@ export default function CbamPage() {
       {chatbotOpen && (
         <ChatbotWidget onClose={handleCloseChatbot} />
       )}
-    </div>
+     </div>
   );
 } 
