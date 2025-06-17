@@ -39,6 +39,11 @@ export default function ChatbotModal({ onClose }) {
     }
   }, [messages]);
 
+const handleResetChat = () => {
+  localStorage.removeItem("cbam_chat_history");
+  setMessages([defaultWelcomeMessage()]);
+};
+  
   // ✅ 기본 인삿말 함수
   const defaultWelcomeMessage = () => ({
     role: "system",
@@ -93,7 +98,9 @@ export default function ChatbotModal({ onClose }) {
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-2xl">
         <div className="flex items-center space-x-3">
           {/* 로고만 이미지 */}
-          <div className="w-12 h-12 rounded-full bg-[#4273C4] flex items-center justify-center shadow-md">
+          <div className="w-12 h-12 rounded-full bg-[#4273C4] flex items-center justify-center shadow-md cursor-pointer"
+            onClick={handleResetChat} 
+            >
             <Image
               src="/LogoC.png"
               alt="챗봇 로고"
