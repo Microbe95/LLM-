@@ -33,12 +33,50 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 1. JSON 로더 설정 - contents는 page_content로, date는 metadata로 이동
+
+# pip install jq
+# pip install -U langchain langchain-openai langchain-community
+# pip install -U langchain langchain-openai
+
+
+from dotenv import load_dotenv
+import os
+import openai
+from langchain_community.document_loaders import JSONLoader
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
+import tiktoken
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
+from langchain_text_splitters import TokenTextSplitter
+from langchain_core.retrievers import BaseRetriever
+from typing import List
+from dataclasses import dataclass
+from langchain_core.retrievers import BaseRetriever
+from langchain_core.documents import Document
+from typing import List
+from pydantic import Field
+from langchain_core.runnables import RunnableSerializable
+from langchain_community.document_loaders import JSONLoader
+
+
+# 환경변수 로드
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# 1. JSON 로더 설정 - contents는 page_content로, date는 metadata로 이동
 loader = JSONLoader(
     file_path="./merged_cbam_data.json",
-    jq_schema=".[]",                   # JSON 배열 구조
-    text_content=True,                # contents → page_content
-    content_key="contents",           # page_content 필드 지정
-    metadata_func=lambda record, _: {"date": record.get("date", "unknown")} 
+    jq_schema=".[]",                    # JSON 배열 구조
+    text_content=True,                 # contents → page_content
+    content_key="contents",            # page_content 필드 지정 (만약 "text"면 바꿔야 함)
+    metadata_func=lambda record, _: {
+        "date": record.get("date", "unknown"),
+        "type": record.get("type", "unknown")  # type 필드도 포함
+    }
 )
 
 documents = loader.load()
@@ -53,38 +91,36 @@ splitter = TokenTextSplitter(
 split_docs = splitter.split_documents(documents)
 
 
-print(f"🔹 총 청크 개수: {len(split_docs)}")  # 예: 3500개 등
-print("🔹 예시 청크:", split_docs[0])
-
-
-# 4. 임베딩 및 벡터 저장소 생성
+# 3. 임베딩 및 벡터 저장소 생성
 embedding_model = OpenAIEmbeddings(
     model="text-embedding-3-large",
     openai_api_key=openai.api_key
 )
-
-# 5. FAISS 벡터 저장소 생성
+# - FAISS 벡터 저장소 생성
 db = FAISS.from_documents(split_docs, embedding_model)
-# 6. 리트리버 및 LLM 구성
 
-# ✅ 날짜 정렬 리트리버 (Pydantic + LangChain 최신 방식)
+
+# 5. 리트리버 및 LLM 구성
+
+# - 날짜 정렬 리트리버 (Pydantic + LangChain 최신 방식)
 class DateSortedRetriever(BaseRetriever, RunnableSerializable):
     base_retriever: BaseRetriever = Field(...)
 
     def _get_relevant_documents(self, query: str) -> List[Document]:
-        docs = self.base_retriever.get_relevant_documents(query)
+        docs = self.base_retriever.invoke(query)
         docs_sorted = sorted(
             docs,
             key=lambda d: d.metadata.get("date", "9999-99-99").replace(".", "-")
         )
         return docs_sorted
-# ✅ 리트리버 + 정렬 래퍼 적용
+    
+# - 리트리버 + 정렬 래퍼 적용
 retriever = db.as_retriever(search_kwargs={"k": 10})
 sorted_retriever = DateSortedRetriever(base_retriever=retriever)
 
 
 
-# 7. 프롬프트 템플릿 정의 및 QA 체인 구성
+# 6. 프롬프트 템플릿 정의 및 QA 체인 구성
 
 prompt_template = PromptTemplate.from_template("""
 안녕하세요. 저는 '카봇'이에요.  
@@ -92,17 +128,17 @@ CBAM(탄소국경조정제도) 대응 플랫폼을 직접 개발했고, 지금�
 
 제가 참고하는 문서는 다음과 같이 서로 다른 역할을 해요:
                             
-1. **플랫폼 반영 사항 정리 문서**  
+1. **manual = 플랫폼 반영 사항 정리 문서**  
    👉 플랫폼이 실제로 어떤 방식으로 구현되었는지를 설명하는 문서예요.  
    👉 '원래는 이렇게 해야 하는데, 우리 플랫폼에서는 이렇게 구현했어요'처럼 비교 중심으로 구성되어 있어요.
 
-2. **EU 탄소국경제도 전환기간 이행 가이드라인**  
+2. **guide=  EU 탄소국경제도 전환기간 이행 가이드라인**  
    👉 제도의 기본적인 절차와 방식이 정리된 공식 가이드예요.
 
-3. **알기쉽게 풀어쓴 CBAM 해설서**  
+3. **cbam= 알기쉽게 풀어쓴 CBAM 해설서**  
    👉 제도 전체의 개념과 용어를 쉽게 설명한 자료예요.
 
-4. **EU 옴니버스 패키지 법안 요약**  
+4. **omnibus  = EU 옴니버스 패키지 법안 요약**  
    👉 CBAM 제도가 개정된 내용이 담겨 있고, 일부는 플랫폼에도 반영되어 있어요.
 
 ---
@@ -125,7 +161,7 @@ CBAM(탄소국경조정제도) 대응 플랫폼을 직접 개발했고, 지금�
 {question}
 """)
 
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5, max_tokens=2000)
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
 qa_chain = RetrievalQA.from_chain_type (
     llm=llm,
     retriever=sorted_retriever,
@@ -134,7 +170,7 @@ qa_chain = RetrievalQA.from_chain_type (
     return_source_documents=True  
 )
 
-# 8. 히스토리 기반 챗봇 클래스 정의
+# 7. 히스토리 기반 챗봇 클래스 정의
 class CBAMChatbot:
     def __init__(self, qa_chain):
         self.qa_chain = qa_chain
@@ -147,7 +183,7 @@ class CBAMChatbot:
         #     history_prompt += f"User: {u}\nBot: {b}\n"
 
         # 질의 수행
-        result = self.qa_chain({"query": user_query})
+        result = self.qa_chain.invoke({"query": user_query})
         answer = result["result"]
         sources = result["source_documents"]
 
@@ -166,13 +202,14 @@ class CBAMChatbot:
 
         for i, doc in enumerate(sources, start=1):
             date = doc.metadata.get("date", "N/A")
-            preview = doc.page_content.strip().replace("\n", " ")[:80]
-            print(f"{i}. 날짜: {date} / 내용: {preview}...")
+            type = doc.metadata.get("type", "N/A")
+            preview = doc.page_content.strip().replace("\n", " ")[:400] + "..."  # 내용 미리보기
+            print(f"{i}. 날짜: {date} / 내용: {preview} / 유형: {type}")
 
         print("=" * 60 + "\n")
         return answer
 
-# 9. 챗봇 객체 생성 및 테스트
+# 8. 챗봇 객체 생성 및 테스트
 chatbot = CBAMChatbot(qa_chain)
 
 while True:
