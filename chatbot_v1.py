@@ -1,8 +1,17 @@
+# pip install -U \
+#   python-dotenv \               # .env 환경변수 로드용
+#   openai \                      # OpenAI API 사용
+#   langchain \                   # LangChain 핵심 라이브러리
+#   langchain-community \         # JSONLoader, FAISS, Chroma 등 커뮤니티 구성요소
+#   langchain-openai \            # OpenAI ↔ LangChain 연동
+#   langchain-core \              # Document, Retriever 등 코어 객체
+#   tiktoken \                    # 토큰 길이 측정용 (OpenAI 모델용)
+#   faiss-cpu \                   # FAISS 벡터 저장소 (CPU 버전)
+#   pydantic \                    # 사용자 정의 리트리버 클래스(Field) 정의용
+#   jq                            # JSONLoader에서 jq 스키마 파싱용
 
-# pip install jq
-# pip install -U langchain langchain-openai langchain-community
-# pip install -U langchain langchain-openai
-
+# pip install -U python-dotenv openai langchain langchain-community langchain-openai langchain-core tiktoken faiss-cpu pydantic jq
+# 패키지 인스톨 정리 본
 
 from dotenv import load_dotenv
 import os
@@ -194,16 +203,16 @@ class CBAMChatbot:
         print("\n" + "-" * 60)
         print("🤖 답변:\n")
         print(answer)
-        print("\n" + "-" * 60)
-        print("📚 참고 문서 출처 (날짜 기준):\n")
+        # print("\n" + "-" * 60)
+        # print("📚 참고 문서 출처 (날짜 기준):\n")
 
-        for i, doc in enumerate(sources, start=1):
-            date = doc.metadata.get("date", "N/A")
-            type = doc.metadata.get("type", "N/A")
-            preview = doc.page_content.strip().replace("\n", " ")[:400] + "..."  # 내용 미리보기
-            print(f"{i}. 날짜: {date} / 내용: {preview} / 유형: {type}")
+        # for i, doc in enumerate(sources, start=1):
+        #     date = doc.metadata.get("date", "N/A")
+        #     type = doc.metadata.get("type", "N/A")
+        #     preview = doc.page_content.strip().replace("\n", " ")[:400] + "..."  # 내용 미리보기
+        #     print(f"{i}. 날짜: {date} / 내용: {preview} / 유형: {type}")
 
-        print("=" * 60 + "\n")
+        # print("=" * 60 + "\n")
         return answer
 
 # 8. 챗봇 객체 생성 및 테스트
