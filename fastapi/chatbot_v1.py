@@ -55,8 +55,7 @@ embedding_model = OpenAIEmbeddings(
 )
 
 # 5. FAISS 벡터 저장소 생성
-db = Chroma.from_documents(split_docs, embedding_model, persist_directory="./chroma_db")
-retriever = db.as_retriever(search_kwargs={"k": 10})
+db = FAISS.from_documents(split_docs, embedding_model)
 # 6. 리트리버 및 LLM 구성
 
 # ✅ 날짜 정렬 리트리버 (Pydantic + LangChain 최신 방식)
