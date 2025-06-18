@@ -34,11 +34,6 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 1. JSON 로더 설정 - contents는 page_content로, date는 metadata로 이동
 
-# pip install jq
-# pip install -U langchain langchain-openai langchain-community
-# pip install -U langchain langchain-openai
-
-
 from dotenv import load_dotenv
 import os
 import openai
@@ -161,7 +156,8 @@ CBAM(탄소국경조정제도) 대응 플랫폼을 직접 개발했고, 지금�
 {question}
 """)
 
-llm = ChatOpenAI(model_name="gpt-4o", temperature=0.5)
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
+# gpt-3.5-turbo
 qa_chain = RetrievalQA.from_chain_type (
     llm=llm,
     retriever=sorted_retriever,
@@ -177,10 +173,11 @@ class CBAMChatbot:
         self.history = []
 
     def ask(self, user_query: str):
-        # # 프롬프트 히스토리 구성
-        # history_prompt = ""
-        # for u, b in self.history[-5:]:
-        #     history_prompt += f"User: {u}\nBot: {b}\n"
+
+        # 프롬프트 히스토리 구성
+        history_prompt = ""
+        for u, b in self.history[-5:]:
+            history_prompt += f"User: {u}\nBot: {b}\n"
 
         # 질의 수행
         result = self.qa_chain.invoke({"query": user_query})
