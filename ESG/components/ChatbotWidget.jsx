@@ -149,7 +149,7 @@ const handleResetChat = () => {
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-3 py-3 bg-[#f8fafd]"
-        style={{ maxHeight: 350 }}
+        style={{ maxHeight: "60vh" }}
       >
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex mb-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
