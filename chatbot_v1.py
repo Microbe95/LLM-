@@ -161,7 +161,7 @@ CBAM(탄소국경조정제도) 대응 플랫폼을 직접 개발했고, 지금�
 {question}
 """)
 
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
+llm = ChatOpenAI(model_name="gpt-4o", temperature=0.5)
 qa_chain = RetrievalQA.from_chain_type (
     llm=llm,
     retriever=sorted_retriever,
