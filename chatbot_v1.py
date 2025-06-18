@@ -25,6 +25,7 @@ from langchain_core.documents import Document
 from typing import List
 from pydantic import Field
 from langchain_core.runnables import RunnableSerializable
+from langchain_community.document_loaders import JSONLoader
 
 
 # 환경변수 로드
@@ -41,35 +42,6 @@ loader = JSONLoader(
 )
 
 documents = loader.load()
-
-# 확인
-print("문서 개수:", len(documents))
-print("샘플 문서:", documents[0])
-
-documents[:5]
-
-import tiktoken
-# 모델에 맞는 토크나이저 선택
-encoding = tiktoken.encoding_for_model("text-embedding-3-large")
-
-# 예시: 첫 번째 문서의 텍스트
-sample_text = documents[0].page_content
-
-# 토큰 개수 계산
-tokens = encoding.encode(sample_text)
-print("토큰 개수:", len(tokens))
-
-
-# 전체 문서 평균 토큰 수 계산
-token_counts = [len(encoding.encode(doc.page_content)) for doc in documents]
-avg_tokens = sum(token_counts) / len(token_counts)
-max_tokens = max(token_counts)
-
-print(f"문서 개수: {len(token_counts)}")
-print(f"평균 토큰 수: {avg_tokens:.2f}")
-print(f"최대 토큰 수: {max_tokens}")
-# -----------------------------------------# 
-
 
 # 2. Text Splitter 설정
 
@@ -119,7 +91,7 @@ prompt_template = PromptTemplate.from_template("""
 CBAM(탄소국경조정제도) 대응 플랫폼을 직접 개발했고, 지금은 이 플랫폼과 관련된 내용을 안내해드리고 있어요.
 
 제가 참고하는 문서는 다음과 같이 서로 다른 역할을 해요:
-
+                            
 1. **플랫폼 반영 사항 정리 문서**  
    👉 플랫폼이 실제로 어떤 방식으로 구현되었는지를 설명하는 문서예요.  
    👉 '원래는 이렇게 해야 하는데, 우리 플랫폼에서는 이렇게 구현했어요'처럼 비교 중심으로 구성되어 있어요.
@@ -153,7 +125,7 @@ CBAM(탄소국경조정제도) 대응 플랫폼을 직접 개발했고, 지금�
 {question}
 """)
 
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.3, max_tokens=2000)
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5, max_tokens=2000)
 qa_chain = RetrievalQA.from_chain_type (
     llm=llm,
     retriever=sorted_retriever,
@@ -169,10 +141,10 @@ class CBAMChatbot:
         self.history = []
 
     def ask(self, user_query: str):
-        # 프롬프트 히스토리 구성
-        history_prompt = ""
-        for u, b in self.history[-5:]:
-            history_prompt += f"User: {u}\nBot: {b}\n"
+        # # 프롬프트 히스토리 구성
+        # history_prompt = ""
+        # for u, b in self.history[-5:]:
+        #     history_prompt += f"User: {u}\nBot: {b}\n"
 
         # 질의 수행
         result = self.qa_chain({"query": user_query})
@@ -183,12 +155,21 @@ class CBAMChatbot:
         self.history.append((user_query, answer))
 
         # 결과 출력
-        print("💬 질문:", user_query)
-        print("🤖 답변:", answer)
-        print("\n📚 참고 문서 출처:")
-        for doc in sources:
-            print(f"- 날짜: {doc.metadata.get('date', 'N/A')} / 내용 일부: {doc.page_content[:60]}...")
+        print("\n" + "=" * 60)
+        print("❓ 질문:")
+        print(user_query)
+        print("\n" + "-" * 60)
+        print("🤖 답변:\n")
+        print(answer)
+        print("\n" + "-" * 60)
+        print("📚 참고 문서 출처 (날짜 기준):\n")
 
+        for i, doc in enumerate(sources, start=1):
+            date = doc.metadata.get("date", "N/A")
+            preview = doc.page_content.strip().replace("\n", " ")[:80]
+            print(f"{i}. 날짜: {date} / 내용: {preview}...")
+
+        print("=" * 60 + "\n")
         return answer
 
 # 9. 챗봇 객체 생성 및 테스트
