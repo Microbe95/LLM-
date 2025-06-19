@@ -196,7 +196,7 @@ const handleResetChat = () => {
       {/* 입력창 */}
       <form onSubmit={handleSend} className="flex px-3 py-2 border-t bg-white">
         <input
-          className="flex-1 rounded-l-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring"
+          className="flex-1 rounded-l-xl border border-gray-400 px-3 py-2 text-sm outline-none focus:ring"
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="질문을 입력하세요"
