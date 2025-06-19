@@ -98,7 +98,7 @@ const handleResetChat = () => {
 
   if (isLoading) return null;
   return (
-    <div className="fixed z-50 bottom-0 right-0 mb-6 mr-6 md:mb-10 md:mr-10 max-w-lg w-[150vw] sm:w-[700px] bg-white rounded-2xl shadow-2xl flex flex-col">
+    <div className="fixed z-50 bottom-0 right-0 mb-3 mr-3 md:mb-6 md:mr-6 max-w-lg w-[150vw] sm:w-[700px] bg-white rounded-2xl shadow-2xl flex flex-col">
 
       {/* 상단 - 로고/타이틀/설명/닫기 */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-2xl">
