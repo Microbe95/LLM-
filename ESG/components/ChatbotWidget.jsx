@@ -168,7 +168,7 @@ const handleResetChat = () => {
             {/* bot/system이면 왼쪽에 로고 */}
             {msg.role !== "user" && (
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-[#4273C4] flex items-center justify-center mr-2 shadow">
+                <div className="w-8 h-8 rounded-full bg-[#4273C4] flex items-center justify-center mr-2 ">
                   <Image
                     src="/chatbot1.png"
                     alt="bot"
@@ -179,10 +179,10 @@ const handleResetChat = () => {
               </div>
             )}
             <div
-              className={`rounded-2xl px-4 py-2 shadow 
+              className={`rounded-2xl px-4 py-2 shadow-lg
                 ${msg.role === "user"
-                  ? "bg-[#00235B] text-white ml-10"
-                  : "bg-white text-gray-800 mr-10 border border-gray-100"}`}
+                  ? "bg-[#00235B] text-white ml-10 "
+                  : "bg-white text-gray-800 mr-10 border border-gray-200"}`}
               style={{ maxWidth: "80%" }}
             >
               <span className="whitespace-pre-line">{msg.text}</span>
@@ -190,6 +190,7 @@ const handleResetChat = () => {
                 <div className="text-xs text-gray-400 mt-1 text-right">{msg.time}</div>
               )}
             </div>
+            
           </div>
         ))}
       </div>
