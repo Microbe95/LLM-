@@ -241,17 +241,18 @@ export default function CbamPage() {
   <button
     onClick={handleOpenChatbot}
     className={`
-      flex items-center gap-2
+      flex items-center justify-between
       bg-[#00235B] rounded-full shadow-lg overflow-hidden
       transition-all duration-300 text-white
-      ${hovered ? "px-4 w-auto" : "w-[65px] h-[65px] p-0"}
+      h-[65px]
+      ${hovered ? 'w-[220px]' : 'w-[65px]'}
     `}
-    style={{ height: "65px" }}
+    style={{ transitionProperty: 'width, background-color' }}
     aria-label="챗봇 열기"
   >
     {/* ✅ 텍스트는 호버 시에만 보이도록 */}
     {hovered && (
-      <span className="text-sm font-bold text-white whitespace-nowrap pr-2">
+      <span className="text-sm font-bold text-white whitespace-nowrap ml-6">
         궁금한 게 있나요?
       </span>
     )}
@@ -261,8 +262,8 @@ export default function CbamPage() {
       <Image
         src="/cbot_logo.png"
         alt="챗봇 열기"
-        width={60}
-        height={60}
+        width={65}
+        height={65}
         style={{ objectFit: "contain" }}
         priority
       />
@@ -277,4 +278,5 @@ export default function CbamPage() {
     </div>
   );
 } 
+
 
