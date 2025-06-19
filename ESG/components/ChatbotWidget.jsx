@@ -15,7 +15,12 @@ export default function ChatbotModal({ onClose }) {
   const [isLoading, setIsLoading] = useState(true); // 초기 로딩 여부
   const [input, setInput] = useState("");
   const scrollRef = useRef();
+  const [visible, setVisible] = useState(false);
 
+  useEffect(() => {
+  const timeout = setTimeout(() => setVisible(true), 10); // 약간의 delay
+  return () => clearTimeout(timeout);
+}, []); 
 
   useEffect(() => {
   if (scrollRef.current) {
@@ -98,8 +103,15 @@ const handleResetChat = () => {
 
   if (isLoading) return null;
   return (
-    <div className="fixed z-50 bottom-0 right-0 mb-3 mr-3 md:mb-6 md:mr-6 max-w-lg w-[150vw] sm:w-[700px] bg-white rounded-2xl shadow-2xl flex flex-col">
-
+    <div
+  className={`
+    fixed z-50 bottom-0 right-0 mb-3 mr-3 md:mb-6 md:mr-6 
+    max-w-lg w-[150vw] sm:w-[700px]
+    bg-white rounded-2xl shadow-2xl flex flex-col
+    transform transition-all duration-500 ease-out origin-bottom-right
+    ${visible ? "opacity-100 scale-100" : "opacity-0 scale-90"}
+  `}
+>
       {/* 상단 - 로고/타이틀/설명/닫기 */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-2xl">
         <div className="flex items-center space-x-3">
