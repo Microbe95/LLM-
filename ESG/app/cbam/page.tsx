@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import ChatbotWidget from "@/components/ChatbotWidget";
 import Link from "next/link";
@@ -21,6 +21,12 @@ export default function CbamPage() {
     useRef<HTMLElement | null>(null),
   ];
 
+  useEffect(() => {
+  if (chatbotOpen) {
+    setHovered(false); // 챗봇 열릴 때 호버 해제
+  }
+}, [chatbotOpen]);
+  
   const [chatbotOpen, setChatbotOpen] = useState(false); // 챗봇 열기/닫기 상태
 
   // 챗봇 열기 핸들러
