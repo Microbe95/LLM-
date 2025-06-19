@@ -148,7 +148,7 @@ const handleResetChat = () => {
       {/* 대화창 */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-3 py-3 bg-[#f8fafd]"
+        className="flex-1 overflow-y-auto px-3 py-3 bg-[#edeff1]"
         style={{ maxHeight: "60vh" }}
       >
         {messages.map((msg, idx) => (
