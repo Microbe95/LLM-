@@ -134,7 +134,7 @@ const handleResetChat = () => {
         "CBAM이 뭐야?"부터 "인증서 가격 어떻게 계산하지?"까지, 편하게 질문해주세요!
       </div>
       {/* FAQ 버튼 */}
-      <div className="flex flex-wrap gap-2 px-4 py-2 bg-[#f8fafd]">
+      <div className="flex flex-wrap gap-2 px-4 py-2 bg-[#f8fafd] justify-center">
         {FAQS.map((faq, i) => (
           <button
             key={i}
