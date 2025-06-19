@@ -230,27 +230,51 @@ export default function CbamPage() {
         </section>
     </div>
 
-      {!chatbotOpen && (
-        <button
-          onClick={handleOpenChatbot}
-          className="fixed bottom-8 right-8 z-50 bg-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center hover:bg-gray-100 transition"
-          aria-label="챗봇 열기"
-          // 필요시 라운드 보더 강조
-        >
-          <Image
-            src="/cbot_logo.png"   // 여기에 원하는 로고 이미지 경로
-            alt="챗봇 열기"
-            width={75}
-            height={75}
-            style={{ objectFit: "contain" }}
-            priority
-          />
-        </button>
-      )}
-      {/* 챗봇 위젯 (open일 때만 노출) */}
-      {chatbotOpen && (
-        <ChatbotWidget onClose={handleCloseChatbot} />
-      )}
-     </div>
+      <div
+  className={`
+    fixed bottom-8 right-8 z-50 transition-all duration-300 ease-in-out 
+    bg-transparent
+  `}
+  onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}
+>
+  <button
+    onClick={handleOpenChatbot}
+    className={`
+      flex items-center gap-2
+      bg-[#00235B] rounded-full shadow-lg overflow-hidden
+      transition-all duration-300 text-white
+      ${hovered ? "px-4 w-auto" : "w-[65px] h-[65px] p-0"}
+    `}
+    style={{ height: "65px" }}
+    aria-label="챗봇 열기"
+  >
+    {/* ✅ 텍스트는 호버 시에만 보이도록 */}
+    {hovered && (
+      <span className="text-sm font-bold text-white whitespace-nowrap pr-2">
+        궁금한 게 있나요?
+      </span>
+    )}
+    
+    {/* ✅ 로고 영역은 항상 고정된 원형 */}
+    <div className="w-[65px] h-[65px] rounded-full flex items-center justify-center bg-[#00235B]">
+      <Image
+        src="/cbot_logo.png"
+        alt="챗봇 열기"
+        width={60}
+        height={60}
+        style={{ objectFit: "contain" }}
+        priority
+      />
+    </div>
+  </button>
+
+  {/* ✅ 챗봇 위젯 */}
+  {chatbotOpen && (
+    <ChatbotWidget onClose={handleCloseChatbot} />
+  )}
+</div>
+    </div>
   );
 } 
+
