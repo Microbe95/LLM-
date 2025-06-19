@@ -11,7 +11,7 @@
 #   jq                            # JSONLoader에서 jq 스키마 파싱용
 
 # pip install -U python-dotenv openai langchain langchain-community langchain-openai langchain-core tiktoken faiss-cpu pydantic jq
-
+# 패키지 인스톨 정리 본
 
 from dotenv import load_dotenv
 import os
@@ -42,6 +42,38 @@ load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 1. JSON 로더 설정 - contents는 page_content로, date는 metadata로 이동
+
+from dotenv import load_dotenv
+import os
+import openai
+from langchain_community.document_loaders import JSONLoader
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
+import tiktoken
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
+from langchain_text_splitters import TokenTextSplitter
+from langchain_core.retrievers import BaseRetriever
+from typing import List
+from dataclasses import dataclass
+from langchain_core.retrievers import BaseRetriever
+from langchain_core.documents import Document
+from typing import List
+from pydantic import Field
+from langchain_core.runnables import RunnableSerializable
+from langchain_community.document_loaders import JSONLoader
+
+
+# --------------------- 1. 환경 설정 ---------------------
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# # --------------------- 2. 문서 로딩 및 분할 --------------------- 
+# contents는 page_content로, date는 metadata로 이동
+
 loader = JSONLoader(
     file_path="./merged_cbam_data.json",
     jq_schema=".[]",                    # JSON 배열 구조
@@ -55,7 +87,9 @@ loader = JSONLoader(
 
 documents = loader.load()
 
-# 2. Text Splitter 설정
+
+
+# ---------------------3. Text Splitter 설정  ---------------------
 
 splitter = TokenTextSplitter(
     chunk_size=512,
@@ -65,7 +99,7 @@ splitter = TokenTextSplitter(
 split_docs = splitter.split_documents(documents)
 
 
-# 3. 임베딩 및 벡터 저장소 생성
+# ---------------------4. 임베딩 및 벡터 저장소 생성 --------------------- #
 embedding_model = OpenAIEmbeddings(
     model="text-embedding-3-large",
     openai_api_key=openai.api_key
@@ -74,9 +108,10 @@ embedding_model = OpenAIEmbeddings(
 db = FAISS.from_documents(split_docs, embedding_model)
 
 
-# 5. 리트리버 및 LLM 구성
+# ---------------------5. 리트리버 및 LLM 구성 --------------------- # 
 
 # - 날짜 정렬 리트리버 (Pydantic + LangChain 최신 방식)
+
 class DateSortedRetriever(BaseRetriever, RunnableSerializable):
     base_retriever: BaseRetriever = Field(...)
 
@@ -92,7 +127,9 @@ class DateSortedRetriever(BaseRetriever, RunnableSerializable):
 retriever = db.as_retriever(search_kwargs={"k": 10})
 sorted_retriever = DateSortedRetriever(base_retriever=retriever)
 
-# 6. 프롬프트 템플릿 정의 및 QA 체인 구성
+
+
+# --------------------- 6. 프롬프트 템플릿 정의 및 QA 체인 구성 --------------------- #
 
 prompt_template = PromptTemplate.from_template("""
                                                
@@ -149,29 +186,35 @@ qa_chain = RetrievalQA.from_chain_type (
     return_source_documents=True  
 )
 
-# 7. 히스토리 기반 챗봇 클래스 정의
-# --------------------- 6. 챗봇 클래스 ---------------------(실제 서비스용)
+# --------------------- 7. 히스토리 기반 챗봇 클래스 정의  --------------------- # 
 class CBAMChatbot:
     def __init__(self, qa_chain):
         self.qa_chain = qa_chain
         self.history = []
 
     def ask(self, user_query: str):
+
+        # 프롬프트 히스토리 구성
+        history_prompt = ""
+        for u, b in self.history[-5:]:
+            history_prompt += f"User: {u}\nBot: {b}\n"
+
+        # 질의 수행
         result = self.qa_chain.invoke({"query": user_query})
         answer = result["result"]
         sources = result["source_documents"]
+
+        # 히스토리 저장
         self.history.append((user_query, answer))
 
-        return {
-            "answer": answer,
-            "sources": [
-                {
-                    "date": doc.metadata.get("date", "N/A"),
-                    "preview": doc.page_content[:]
-                }
-                for doc in sources
-            ]
-        }
-# ------------------------------------------(실제 서비스용)
+    
+        return answer
 
-__all__ = ["CBAMChatbot", "qa_chain"]
+# 8. 챗봇 객체 생성 및 테스트
+chatbot = CBAMChatbot(qa_chain)
+
+while True:
+    user_input = input("\n❓ 질문을 입력하세요 (종료하려면 'exit'): ")
+    if user_input.lower() in ['exit', 'quit']:
+        break
+    chatbot.ask(user_input)
