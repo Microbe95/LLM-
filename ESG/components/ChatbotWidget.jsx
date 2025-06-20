@@ -36,10 +36,10 @@ useEffect(() => {
         setMessages(JSON.parse(saved));
       } catch {
         localStorage.removeItem("cbam_chat_history");
-        setMessages([defaultWelcomeMessage()]);
+        setMessages([animateWelcomeMessage()]);
       }
     } else {
-      setMessages([defaultWelcomeMessage()]);
+      setMessages([animateWelcomeMessage()]);
     }
     setIsLoading(false); // 로딩 완료
   }, []);
@@ -53,14 +53,33 @@ useEffect(() => {
 
 const handleResetChat = () => {
   localStorage.removeItem("cbam_chat_history");
-  setMessages([defaultWelcomeMessage()]);
+  setMessages([animateWelcomeMessage()]);
 };
   
   // ✅ 기본 인삿말 함수
-  const defaultWelcomeMessage = () => ({
-    role: "system",
-    text: "안녕하세요! 저는 CBAM 궁금증을 해결해드리는 카봇이에요.\n'CBAM이 뭐야?'부터 '인증서 가격 어떻게 계산하지?'까지, 편하게 질문해주세요!"
-  });
+// 초기 인삿말을 애니메이션으로 표시
+const animateWelcomeMessage = async () => {
+  const welcomeText = "안녕하세요! 저는 CBAM 궁금증을 해결해드리는 카봇이에요.\n'CBAM이 뭐야?'부터 '인증서 가격 어떻게 계산하지?'까지, 편하게 질문해주세요!";
+  const timestamp = now();
+
+  // 우선 빈 메시지 추가
+  setMessages([{ role: "system", text: "...", time: timestamp }]);
+
+  await new Promise(resolve => setTimeout(resolve, 500)); // 로딩 효과
+
+  let currentText = "";
+  for (let i = 0; i < welcomeText.length; i++) {
+    currentText += welcomeText[i];
+    await new Promise(resolve => setTimeout(resolve, 15));
+
+    setMessages([{
+      role: "system",
+      text: currentText,
+      time: timestamp
+    }]);
+  }
+};
+
 
   // 질문 전송
   const sendMessage = async (question) => {
@@ -266,4 +285,5 @@ function now() {
     .toString()
     .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
+
 
