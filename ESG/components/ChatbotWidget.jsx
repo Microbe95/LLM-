@@ -64,12 +64,23 @@ const handleResetChat = () => {
 
   // 질문 전송
   const sendMessage = async (question) => {
-    if (!question.trim()) return;
-    setMessages(prev => [
-      ...prev,
-      { role: "user", text: question, time: now() }
-    ]);
-    setInput("");
+  if (!question.trim()) return;
+  const timestamp = now();
+
+  // 사용자 메시지 추가
+  setMessages(prev => [
+    ...prev,
+    { role: "user", text: question, time: timestamp }
+  ]);
+  setInput("");
+
+  // ✅ 로딩 점(...) 추가
+  setMessages(prev => [
+    ...prev,
+    { role: "bot", text: "...", time: timestamp }
+  ]);
+
+  const placeholderIndex = messages.length + 1; // bot 메시지 인덱스
 
   try {
     const res = await fetch("/api/chatbot", {
@@ -78,16 +89,44 @@ const handleResetChat = () => {
       body: JSON.stringify({ prompt: question }),
     });
     if (!res.ok) throw new Error("서버 응답 실패");
+
     const data = await res.json();
-    setMessages(prev => [
-      ...prev,
-      { role: "bot", text: data.result, time: now() }
-    ]);
+    const result = data.result;
+
+    // 0.5초 로딩 점(...) 유지
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // ✅ 점 대신 한 글자씩 치는 효과
+    let currentText = "";
+    for (let i = 0; i < result.length; i++) {
+      currentText += result[i];
+      await new Promise(resolve => setTimeout(resolve, 15)); // 타이핑 속도
+
+      setMessages(prev => {
+        const updated = [...prev];
+        if (updated[placeholderIndex]) {
+          updated[placeholderIndex] = {
+            ...updated[placeholderIndex],
+            text: currentText,
+            time: timestamp,
+          };
+        }
+        return updated;
+      });
+    }
   } catch (err) {
-    setMessages(prev => [
-      ...prev,
-      { role: "bot", text: "⚠️ 서버와 통신에 실패했습니다.", time: now() }
-    ]);
+    // 에러 메시지로 대체
+    setMessages(prev => {
+      const updated = [...prev];
+      if (updated[placeholderIndex]) {
+        updated[placeholderIndex] = {
+          ...updated[placeholderIndex],
+          text: "⚠️ 서버와 통신에 실패했습니다.",
+          time: timestamp,
+        };
+      }
+      return updated;
+    });
   }
 };
 
