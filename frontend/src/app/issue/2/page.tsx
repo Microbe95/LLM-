@@ -5,6 +5,8 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import StepBar from "@/components/StepBar";
 import IssueModal from "@/components/IssueModal";
+import { useRouter } from "next/navigation"; // 상단에 추가
+import { useEffect } from "react";
 
 export default function IssuePoolPage() {
   const [issues, setIssues] = useState<any[]>([]); // [{ title, desc, source, category }]
@@ -40,6 +42,7 @@ export default function IssuePoolPage() {
       setShowModal(false);
     }
   };
+  const router = useRouter();
 
   return (
     <main className="min-h-screen bg-white text-gray-800">
@@ -86,9 +89,12 @@ export default function IssuePoolPage() {
         </div>
 
         <div className="flex justify-end max-w-6xl mx-auto mt-6">
-          <button className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800">
-            저장하고 다음으로
-          </button>
+          <button
+  onClick={() => router.push("/survey/1")}
+  className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800"
+>
+  저장하고 다음으로
+</button>
         </div>
 
         {showModal && (

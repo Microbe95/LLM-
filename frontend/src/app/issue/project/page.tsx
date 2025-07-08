@@ -1,19 +1,61 @@
-// ✅ /app/issue/project/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import StepBar from "@/components/StepBar";
 import { useRouter } from "next/navigation";
+import { markStepCompleteAuto } from "@/utils/stepTracker";
+import { v4 as uuidv4 } from "uuid";
 
 export default function IssueProjectPage() {
   const [division, setDivision] = useState("");
   const [projectName, setProjectName] = useState("");
+  const [sessionUser, setSessionUser] = useState<string | null>(null);
   const router = useRouter();
 
+  // ✅ 자동 저장 (step1 완료)
+  useEffect(() => {
+    markStepCompleteAuto();
+  }, []);
+
+  // ✅ 로그인 확인
+  useEffect(() => {
+    const user = localStorage.getItem("sessionUser");
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      router.push("/login");
+    }
+    setSessionUser(user);
+  }, [router]);
+
+  // ✅ 프로젝트 저장 및 다음 페이지 이동
   const handleNext = () => {
-    // TODO: 저장 로직 추가 후 이동
-    router.push("/issue/word");
+    if (!sessionUser) return;
+
+    const allProjects = JSON.parse(localStorage.getItem("projects") || "{}");
+    const userProjects = allProjects[sessionUser] || [];
+
+    const id = uuidv4(); // 고유 ID 생성
+
+    const newProject = {
+      id,
+      division,
+      name: projectName || `${sessionUser} • ${division}`,
+      step1: true,
+      step2: false,
+      step3: false,
+      step4: false,
+      step5: false,
+    };
+
+    const updatedProjects = [newProject, ...userProjects];
+    allProjects[sessionUser] = updatedProjects;
+
+    // ✅ 저장
+    localStorage.setItem("projects", JSON.stringify(allProjects));
+    localStorage.setItem("currentProjectId", id); // ✅ 현재 프로젝트 ID 저장
+
+    router.push("/issue/word"); // 다음 단계 이동
   };
 
   return (
@@ -31,6 +73,7 @@ export default function IssueProjectPage() {
               value={division}
               onChange={(e) => setDivision(e.target.value)}
               className="w-full rounded px-4 py-2 border text-gray-900 bg-white"
+              placeholder="예: 2025 1분기"
             />
           </div>
 
@@ -41,10 +84,11 @@ export default function IssueProjectPage() {
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               className="w-full rounded px-4 py-2 border text-gray-900 bg-white"
+              placeholder="입력하지 않으면 자동 생성됩니다."
             />
           </div>
           <p className="text-sm text-gray-500">
-            프로젝트 명 미기입시 "기업명"•"분기" 중요성 평가
+            프로젝트 명 미기입시 "사용자ID • 분기"로 자동 저장됩니다.
           </p>
         </div>
 
