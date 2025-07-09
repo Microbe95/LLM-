@@ -1,4 +1,4 @@
-// ✅ /app/survey/main/page.tsx (통합 시안 반영: 생성 버튼 포함, 설문 요약 + 응답 처리 + 설명 추가)
+// ✅ /app/survey/main/page.tsx (통합 시안 반영: 생성 버튼 포함, 설문 요약 + 응답 처리 + 설명 추가 + 발송 모달 + 선택 그룹 초기값 연동)
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import StepBar from "@/components/StepBar";
 import EmailSetModal from "@/components/EmailSetModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const SURVEY_TARGETS = [
   { label: "임직원", description: "내부 구성원", tag: "내부" },
@@ -21,9 +22,9 @@ export default function SurveyMainPage() {
   const router = useRouter();
   const [sessionUser, setSessionUser] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState<string>("");
   const [questions, setQuestions] = useState<string[]>([]);
-
   const [title, setTitle] = useState("");
   const [group, setGroup] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -47,6 +48,19 @@ export default function SurveyMainPage() {
     ]);
   };
 
+  const handleConfirmSend = () => {
+    if (!selectedTarget) {
+      alert("먼저 설문 대상자를 선택해주세요.");
+      return;
+    }
+    setShowConfirm(true);
+  };
+
+  const handleConfirmSubmit = () => {
+    alert(`${selectedTarget} 그룹에게 설문이 발송되었습니다.`);
+    setShowConfirm(false);
+  };
+
   return (
     <main className="min-h-screen bg-white text-gray-800">
       <Header showHomeIcon />
@@ -55,7 +69,6 @@ export default function SurveyMainPage() {
         <StepBar current="Survey" />
 
         <div className="grid grid-cols-2 gap-6 mt-6 max-w-6xl mx-auto">
-          {/* 좌측 전체 정보 입력 */}
           <div className="col-span-1 space-y-4">
             <div className="border p-4 rounded bg-gray-50">
               <h3 className="font-semibold mb-2">설문조사 기본 정보</h3>
@@ -75,12 +88,7 @@ export default function SurveyMainPage() {
             <div className="border p-4 rounded bg-gray-50">
               <div className="flex justify-between mb-2">
                 <h3 className="font-semibold">설문조사 대상 선택</h3>
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="text-sm text-blue-600 border px-2 py-1 rounded hover:bg-blue-100"
-                >
-                  Email 설정하기
-                </button>
+                <button onClick={() => setShowModal(true)} className="text-sm text-blue-600 border px-2 py-1 rounded hover:bg-blue-100">Email 설정하기</button>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -124,7 +132,6 @@ export default function SurveyMainPage() {
             </div>
           </div>
 
-          {/* 우측 요약 + 생성 버튼 */}
           <div className="col-span-1 border p-4 rounded bg-gray-50 h-fit">
             <h3 className="font-semibold text-lg mb-3">설문 요약</h3>
             <div className="text-sm mb-4">
@@ -136,12 +143,10 @@ export default function SurveyMainPage() {
             <label className="block text-sm font-medium mb-1">설문 설명</label>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="w-full h-24 border px-3 py-2 rounded mb-4" />
 
-            <button
-              onClick={handleGenerateSurvey}
-              className="w-full mb-4 bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-            >
-              설문 생성하기
-            </button>
+            <div className="flex gap-2 mb-4">
+              <button onClick={handleGenerateSurvey} className="w-1/2 bg-blue-500 text-white py-2 rounded hover:bg-blue-600">설문 생성하기</button>
+              <button onClick={handleConfirmSend} className="w-1/2 bg-green-600 text-white py-2 rounded hover:bg-green-700">설문 발송하기</button>
+            </div>
 
             <h4 className="font-semibold mb-2">생성된 설문 문항</h4>
             {questions.length > 0 ? (
@@ -164,6 +169,14 @@ export default function SurveyMainPage() {
         </div>
 
         {showModal && <EmailSetModal onClose={() => setShowModal(false)} />}
+        {showConfirm && (
+          <ConfirmModal
+            title="설문 발송 확인"
+            message={`선택된 대상자 "${selectedTarget}"에게 설문을 발송하시겠습니까?`}
+            onConfirm={handleConfirmSubmit}
+            onCancel={() => setShowConfirm(false)}
+          />
+        )}
       </div>
     </main>
   );

@@ -16,12 +16,10 @@ export default function SurveyPage1() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  // ✅ step2 자동 완료
   useEffect(() => {
     markStepCompleteAuto();
   }, []);
 
-  // ✅ 로그인 확인
   useEffect(() => {
     const user = localStorage.getItem("sessionUser");
     if (!user) {
@@ -31,18 +29,15 @@ export default function SurveyPage1() {
     setSessionUser(user);
   }, [router]);
 
-  // ✅ 저장 + 다음 이동 + step2 true 처리
   const handleSaveAndNext = () => {
     if (!sessionUser) return;
 
-    // 1. 설문 저장
     const allData = JSON.parse(localStorage.getItem("surveyData") || "{}");
     const userData = allData[sessionUser] || {};
     userData["step1"] = { date, time, title, group, fromDate, toDate };
     allData[sessionUser] = userData;
     localStorage.setItem("surveyData", JSON.stringify(allData));
 
-    // 2. 진행률 step2 업데이트
     const projects = JSON.parse(localStorage.getItem("projects") || "{}");
     const currentId = localStorage.getItem("currentProjectId");
     const userProjects = projects[sessionUser] || [];
@@ -54,8 +49,11 @@ export default function SurveyPage1() {
     projects[sessionUser] = updated;
     localStorage.setItem("projects", JSON.stringify(projects));
 
-    // 3. 이동
     router.push("/evaluate/1");
+  };
+
+  const handlePrevStep = () => {
+    router.push("/issue/project");
   };
 
   return (
@@ -67,10 +65,10 @@ export default function SurveyPage1() {
 
         <div className="grid grid-cols-5 gap-4 mt-6 max-w-5xl mx-auto">
           <button
-            onClick={() => router.back()}
-            className="col-span-1 bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={handlePrevStep}
+            className="col-span-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            ←
+            ← 이전 단계
           </button>
 
           <div className="col-span-4 flex gap-4 items-center">
@@ -96,6 +94,7 @@ export default function SurveyPage1() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              placeholder="예: 2025 ESG 이슈 인식도 조사"
               className="border px-3 py-2 rounded"
             />
 
@@ -104,6 +103,7 @@ export default function SurveyPage1() {
               type="text"
               value={group}
               onChange={(e) => setGroup(e.target.value)}
+              placeholder="예: 내부 임직원, 고객, 투자자 등"
               className="border px-3 py-2 rounded"
             />
 
@@ -134,7 +134,9 @@ export default function SurveyPage1() {
 
           <div className="col-span-3 border bg-gray-50 rounded p-4">
             <h3 className="font-semibold mb-2">설문 현황</h3>
-            <div className="h-40 bg-white border rounded"></div>
+            <div className="h-40 bg-white border rounded p-3 text-sm text-gray-500">
+              아직 생성된 설문이 없습니다. 좌측 정보를 입력 후 "설문 생성하러 가기"를 클릭하세요.
+            </div>
           </div>
         </div>
 

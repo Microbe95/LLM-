@@ -1,4 +1,4 @@
-// ✅ components/evaluate/StakeholderTab.tsx
+// ✅ components/evaluate/StakeholderTab.tsx 개선본
 "use client";
 
 import { useState } from "react";
@@ -11,62 +11,61 @@ export default function StakeholderTab() {
   const [showModal, setShowModal] = useState(false);
 
   const infoBox = (label: string, value = "-") => (
-    <div className="flex-1 bg-white border rounded p-3">
+    <div className="flex-1 bg-white border rounded p-4">
       <p className="text-sm text-gray-600 mb-1">{label}</p>
-      <div className="h-10 bg-gray-100 rounded"></div>
+      <p className="text-xl font-semibold text-gray-800">{value}</p>
     </div>
   );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
+      {/* 이해관계자 선택 + 응답률 진행률 바 */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">이해관계자 그룹 선택</label>
         <select
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
-          className="border px-3 py-2 rounded"
+          className="border px-3 py-2 rounded w-64"
         >
           {GROUPS.map((g, i) => (
             <option key={i}>{g}</option>
           ))}
         </select>
 
-        <div className="w-full h-3 bg-gray-200 rounded">
-          <div className="h-3 bg-blue-500 rounded" style={{ width: "30%" }}></div>
+        <div className="w-full h-4 bg-gray-200 rounded relative">
+          <div className="h-full bg-blue-500 rounded" style={{ width: "30%" }}></div>
+          <span className="absolute right-2 top-0 text-xs text-white font-semibold leading-4">30%</span>
         </div>
-
-        <span className="text-sm ml-2">30%</span>
       </div>
 
+      {/* 응답 현황 카드 */}
       <div className="flex gap-4">
-        {infoBox("발송 수")}
-        {infoBox("응답 수")}
-        <div className="flex-1 bg-white border rounded p-3">
-          <p className="text-sm text-gray-600 mb-1 flex justify-between items-center">
-            미응답
+        {infoBox("발송 수", "100")}
+        {infoBox("응답 수", "30")}
+        <div className="flex-1 bg-white border rounded p-4">
+          <div className="flex justify-between items-center text-sm text-gray-600 mb-1">
+            <span>미응답</span>
             <button
-              className="text-xs text-blue-600 hover:underline"
+              className="text-blue-600 hover:underline text-xs"
               onClick={() => setShowModal(true)}
             >
               미응답 확인하기
             </button>
-          </p>
-          <div className="h-10 bg-gray-100 rounded"></div>
+          </div>
+          <p className="text-xl font-semibold text-gray-800">70</p>
         </div>
       </div>
 
+      {/* 카테고리별 Top5 */}
       <div className="grid grid-cols-3 gap-4 text-sm">
-        {[
-          { label: "환경", avg: 70, top: ["GST-01", "GST-02"] },
-          { label: "사회", avg: 65, top: ["GST-03", "GST-04"] },
-          { label: "지배구조", avg: 68, top: ["GST-05", "GST-06"] },
-        ].map((cat, i) => (
+        {["환경", "사회", "지배구조"].map((cat, i) => (
           <div key={i} className="bg-gray-50 border rounded p-4">
-            <h4 className="font-semibold mb-1">{cat.label}</h4>
-            <p className="mb-1">평균점수: {cat.avg}</p>
-            <p className="font-medium">Top 5</p>
-            <ul className="list-disc list-inside">
-              {cat.top.map((item, j) => (
-                <li key={j}>{item}</li>
+            <h4 className="font-semibold mb-1">{cat}</h4>
+            <p className="mb-1">평균점수: {60 + i * 5}</p>
+            <p className="font-medium mb-1">Top 5</p>
+            <ul className="list-disc list-inside text-gray-700">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <li key={n}>{cat}-지표 {n}</li>
               ))}
             </ul>
           </div>

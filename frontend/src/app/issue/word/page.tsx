@@ -1,4 +1,3 @@
-// ✅ /app/issue/word/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -15,8 +14,13 @@ export default function IssueWordPage() {
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
-  const handleAddKeyword = (newKeyword: string) => {
-    setKeywords((prev) => [...prev, newKeyword]);
+  const handleNext = () => {
+    // TODO: 입력값을 저장하거나 상태에 반영
+    router.push("/issue/2");
+  };
+
+  const handlePrev = () => {
+    router.push("/issue/project");
   };
 
   return (
@@ -69,22 +73,28 @@ export default function IssueWordPage() {
           </div>
         </div>
 
-        <div className="flex justify-end max-w-2xl mx-auto mt-6">
+        <div className="flex justify-between max-w-2xl mx-auto mt-6">
           <button
-            onClick={() => router.push("/issue/2")}
+            onClick={handlePrev}
+            className="bg-gray-300 text-gray-800 px-6 py-2 rounded hover:bg-gray-400"
+          >
+            ← 이전 단계
+          </button>
+          <button
+            onClick={handleNext}
             className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800"
           >
-            저장하고 다음으로
+            저장하고 다음으로 →
           </button>
         </div>
 
         {showModal && (
           <KeywordModal
             onClose={() => setShowModal(false)}
-            onSave={(kw) => {
-              handleAddKeyword(kw);
-              setShowModal(false);
+            onUpdate={(updatedKeywords) => {
+              setKeywords(updatedKeywords);
             }}
+            initialKeywords={keywords}
           />
         )}
       </div>

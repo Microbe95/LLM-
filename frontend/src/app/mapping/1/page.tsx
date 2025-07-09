@@ -1,18 +1,41 @@
+// ✅ 개선된 MappingStep1.tsx - 선택 상태 연동 + 시각 강화
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import StepBar from "@/components/StepBar";
-import { markStepCompleteAuto } from "@/utils/stepTracker"; // ✅ 자동 진행률 저장 추가
+import { markStepCompleteAuto } from "@/utils/stepTracker";
+
+const dummyRows = [...Array(5)].map((_, i) => ({
+  id: i,
+  category: "환경",
+  subject: "온실가스",
+  topic: "GHG",
+  stakeholder: 4.2,
+  expert: 4.1,
+  total: 4.15,
+}));
 
 export default function MappingStep1() {
   const router = useRouter();
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  // ✅ 진입 시 자동으로 step4 완료 처리
   useEffect(() => {
     markStepCompleteAuto();
   }, []);
+
+  const toggleCheckbox = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+    );
+  };
+
+  const getCategoryCount = (category: string) => {
+    return dummyRows.filter(
+      (row) => selectedIds.includes(row.id) && row.category === category
+    ).length;
+  };
 
   return (
     <main className="min-h-screen bg-white text-gray-800">
@@ -39,15 +62,26 @@ export default function MappingStep1() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="p-2"><input type="checkbox" /></td>
-                      <td className="p-2">환경</td>
-                      <td className="p-2">온실가스</td>
-                      <td className="p-2">GHG</td>
-                      <td className="p-2">4.2</td>
-                      <td className="p-2">4.1</td>
-                      <td className="p-2">4.15</td>
+                  {dummyRows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className={`border-t ${
+                        selectedIds.includes(row.id) ? "bg-blue-50" : ""
+                      }`}
+                    >
+                      <td className="p-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(row.id)}
+                          onChange={() => toggleCheckbox(row.id)}
+                        />
+                      </td>
+                      <td className="p-2">{row.category}</td>
+                      <td className="p-2">{row.subject}</td>
+                      <td className="p-2">{row.topic}</td>
+                      <td className="p-2">{row.stakeholder}</td>
+                      <td className="p-2">{row.expert}</td>
+                      <td className="p-2">{row.total}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -56,18 +90,33 @@ export default function MappingStep1() {
 
             <div className="mt-6">
               <label className="text-sm font-semibold">선정 근거 및 의견</label>
-              <textarea className="mt-1 w-full border rounded px-3 py-2 text-sm" rows={4}></textarea>
+              <textarea
+                className="mt-1 w-full border rounded px-3 py-2 text-sm"
+                rows={4}
+                placeholder="선택한 이슈들에 대한 근거 및 의견을 입력해 주세요."
+              ></textarea>
             </div>
           </div>
 
           {/* 선정 현황 */}
           <div className="col-span-1 border rounded p-4 bg-white">
             <h4 className="text-sm font-semibold mb-2">선정 현황</h4>
-            <p className="text-3xl font-bold text-blue-600 mb-4">10</p>
-            <ul className="text-sm text-gray-700">
-              <li>환경: 5개</li>
-              <li>사회: 3개</li>
-              <li>지배구조: 2개</li>
+            <p className="text-3xl font-bold text-blue-600 mb-4">
+              {selectedIds.length}
+            </p>
+            <ul className="text-sm text-gray-700 space-y-1">
+              <li className="flex justify-between">
+                <span>환경</span>
+                <span className="font-medium">{getCategoryCount("환경")}개</span>
+              </li>
+              <li className="flex justify-between">
+                <span>사회</span>
+                <span className="font-medium">{getCategoryCount("사회")}개</span>
+              </li>
+              <li className="flex justify-between">
+                <span>지배구조</span>
+                <span className="font-medium">{getCategoryCount("지배구조")}개</span>
+              </li>
             </ul>
           </div>
         </div>

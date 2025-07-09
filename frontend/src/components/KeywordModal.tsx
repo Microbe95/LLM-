@@ -1,17 +1,22 @@
-// ✅ components/KeywordModal.tsx (다시 생성: 입력창 위에 뜨는 팝업 + 키워드 추가 리스트)
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function KeywordModal({
   onClose,
-  onSave,
+  onUpdate,
+  initialKeywords = [],
 }: {
   onClose: () => void;
-  onSave: (keyword: string) => void;
+  onUpdate: (keywords: string[]) => void;
+  initialKeywords?: string[];
 }) {
   const [input, setInput] = useState("");
   const [list, setList] = useState<string[]>([]);
+
+  useEffect(() => {
+    setList(initialKeywords);
+  }, [initialKeywords]);
 
   const addKeyword = () => {
     const kw = input.trim();
@@ -21,13 +26,24 @@ export default function KeywordModal({
     }
   };
 
+  const removeKeyword = (kw: string) => {
+    setList(list.filter((k) => k !== kw));
+  };
+
   const handleSave = () => {
-    list.forEach(onSave);
+    onUpdate(list);
     onClose();
   };
 
   return (
-    <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.3)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)", // Safari 호환용
+      }}
+    >
       <div className="relative w-full max-w-md bg-white rounded-lg p-6 border shadow pointer-events-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold">키워드 추가하기</h3>
@@ -54,8 +70,18 @@ export default function KeywordModal({
 
           <ul className="mt-4 space-y-1 text-sm text-gray-700">
             {list.map((kw, i) => (
-              <li key={i} className="bg-white border px-3 py-1 rounded">
+              <li
+                key={i}
+                className="bg-white border px-3 py-1 rounded flex justify-between items-center"
+              >
                 {kw}
+                <button
+                  onClick={() => removeKeyword(kw)}
+                  className="text-red-600 font-bold ml-2"
+                  title="삭제"
+                >
+                  ×
+                </button>
               </li>
             ))}
           </ul>
